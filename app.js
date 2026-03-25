@@ -5,7 +5,7 @@ const PORT = 3000;
 
 // test route
 app.get('/', (req, res) => {
-  res.send('Hello world');
+  res.send('Hello everyone!');
 });
 
 // static files
