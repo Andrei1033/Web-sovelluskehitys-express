@@ -1,0 +1,18 @@
+GET http://localhost:3000/api/v1/users
+
+GET http://localhost:3000/api/v1/users/3609
+
+POST http://localhost:3000/api/v1/users
+Content-Type: application/json
+
+{
+  "name": "Alice Johnson",
+  "username": "alicej",
+  "email": "alice@metropolia.fi",
+  "role": "user",
+  "password": "password"
+}
+
+PUT http://localhost:3000/api/v1/users/3609
+
+DELETE http://localhost:3000/api/v1/users/3609

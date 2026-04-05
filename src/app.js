@@ -1,7 +1,10 @@
 import express from 'express';
+import api from './api/index.js';
 
 const app = express();
-const PORT = 3000;
+
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 // test route
 app.get('/', (req, res) => {
@@ -10,6 +13,8 @@ app.get('/', (req, res) => {
 
 // static files
 app.use('/public', express.static('public'));
+
+app.use('/api/v1', api);
 
 // API
 app.get('/api/v1/cat', (req, res) => {
@@ -25,6 +30,4 @@ app.get('/api/v1/cat', (req, res) => {
    res.json(cat);
 });
 
-app.listen(PORT, () => {
-   console.log(`Server running at http://localhost:${PORT}`);
-});
+export default app;
