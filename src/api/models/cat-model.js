@@ -29,7 +29,9 @@ const findCatById = (id) => {
 const addCat = (cat) => {
   const { cat_name, weight, owner, filename, birthdate } = cat;
 
-   const newId = catItems[0].cat_id + 1;
+   const newId = catItems.length
+      ? catItems[0].cat_id + 1
+      : 1;
 
    const newCat = {
       cat_id: newId,
