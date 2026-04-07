@@ -2,27 +2,24 @@ import jwt from 'jsonwebtoken';
 import 'dotenv/config';
 
 const authenticateToken = (req, res, next) => {
-   console.log('authenticateToken', req.headers);
+  console.log('authenticateToken headers:', req.headers);
 
-   // Token odotetaan Authorization-headerissa muodossa "Bearer <token>"
-   const authHeader = req.headers['authorization'];
-   const token = authHeader && authHeader.split(' ')[1]; // ota token
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
 
-   console.log('token', token);
+  console.log('token:', token);
 
-   if (!token) {
-      return res.status(401).json({ message: 'Token missing' }); // token puuttuu
-   }
+  if (token == null) {
+    return res.sendStatus(401);
+  }
 
-   try {
-      // Tarkistetaan tokenin oikeellisuus
-      res.locals.user = jwt.verify(token, process.env.JWT_SECRET);
-      next(); // token ok, siirrytään seuraavaan middlewareen tai controlleriin
-   }
-   catch (error) {
-      console.error('Token verification error:', error);
-      res.status(403).json({ message: 'Invalid token' }); // token ei kelpaa
-   }
+  try {
+    const user = jwt.verify(token, process.env.JWT_SECRET);
+    res.locals.user = user;
+    next();
+  } catch (err) {
+    res.status(403).json({ message: 'invalid token' });
+  }
 };
 
 export { authenticateToken };

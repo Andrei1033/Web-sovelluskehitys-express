@@ -1,6 +1,7 @@
 import express from 'express';
-import api from './api/index.js';
-import catRouter from './api/routers/cat-router.js';
+import api from '../src/api/index.js';
+import catRouter from '../src/api/routers/cat-router.js';
+import authRouter from '../src/api/routers/auth-router.js';
 
 const app = express();
 
@@ -19,5 +20,7 @@ app.use('/api/v1', api);
 
 // API
 app.use('/api/v1/cats', catRouter);
+
+app.use('/api/v1/auth', authRouter);
 
 export default app;

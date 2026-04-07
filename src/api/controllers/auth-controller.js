@@ -4,42 +4,56 @@ import { findUserByUsername } from '../models/user-model.js';
 import 'dotenv/config';
 
 const postLogin = async (req, res) => {
-   try {
-      console.log('postLogin', req.body);
+  console.log('postLogin', req.body);
 
-      // Hae käyttäjä tietokannasta käyttäjätunnuksen perusteella
-      const user = await findUserByUsername(req.body.username);
+  // Tarkista että käyttäjätunnus ja salasana on annettu
+  if (!req.body.username || !req.body.password) {
+    res.status(401).json({ message: 'Username and password required' });
+    return;
+  }
 
-      if (!user) {
-         return res.status(401).json({ message: 'Invalid username or password' });
-      }
+  const user = await findUserByUsername(req.body.username);
 
-      // Tarkista salasana
-      const passwordMatch = await bcrypt.compare(req.body.password, user.password);
-      if (!passwordMatch) {
-         return res.status(401).json({ message: 'Invalid username or password' });
-      }
+  // Tarkista löytyykö käyttäjä
+  if (!user) {
+    console.log('Käyttäjää ei löydy:', req.body.username);
+    res.status(401).json({ message: 'Invalid username or password' });
+    return;
+  }
 
-      // Poistetaan salasana objektista ennen tokenin luomista
-      const userWithoutPassword = {
-         user_id: user.user_id,
-         name: user.name,
-         username: user.username,
-         email: user.email,
-         role: user.role,
-      };
+  // Vertaa salasanaa (bcrypt.compare on asynkroninen)
+  const passwordMatch = await bcrypt.compare(req.body.password, user.password);
 
-      // Luo JWT
-      const token = jwt.sign(userWithoutPassword, process.env.JWT_SECRET, {
-         expiresIn: '24h' // tokenin voimassaoloaika
-      });
+  if (!passwordMatch) {
+    console.log('Väärä salasana käyttäjälle:', req.body.username);
+    res.status(401).json({ message: 'Invalid username or password' });
+    return;
+  }
 
-      res.json({ user: userWithoutPassword, token });
-   }
-   catch (error) {
-      console.error(error);
-      res.sendStatus(500);
-   }
+  // Poista salasana ennen kuin lähetetään clientille
+  const userWithNoPassword = {
+    user_id: user.user_id,
+    name: user.name,
+    username: user.username,
+    email: user.email,
+    role: user.role,
+  };
+
+  // Luo JWT token
+  const token = jwt.sign(userWithNoPassword, process.env.JWT_SECRET, {
+    expiresIn: '24h',
+  });
+
+  res.json({ user: userWithNoPassword, token });
 };
 
-export { postLogin };
+const getMe = async (req, res) => {
+  console.log('getMe', res.locals.user);
+  if (res.locals.user) {
+    res.json({ message: 'token ok', user: res.locals.user });
+  } else {
+    res.sendStatus(401);
+  }
+};
+
+export { postLogin, getMe };

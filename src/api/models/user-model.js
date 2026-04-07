@@ -1,45 +1,47 @@
-// mock data
-const userItems = [
-  {
-    user_id: 3609,
-    name: 'John Doe',
-    username: 'johndoe',
-    email: 'john@metropolia.fi',
-    role: 'user',
-    password: 'password',
-  },
-  {
-    user_id: 3610,
-    name: 'Jane Smith',
-    username: 'janesmith',
-    email: 'jane@metropolia.fi',
-    role: 'admin',
-    password: 'password123',
-  },
-];
+import promisePool from '../../utils/database.js';
 
-const listAllUsers = () => {
-  return userItems;
+// Hae kaikki käyttäjät
+const listAllUsers = async () => {
+  const sql = 'SELECT user_id, name, username, email, role FROM wsk_users';
+  const [rows] = await promisePool.execute(sql);
+  return rows;
 };
 
-const findUserById = (id) => {
-  return userItems.find((user) => user.user_id == id);
+// Hae käyttäjä id:llä
+const findUserById = async (id) => {
+  const sql = 'SELECT user_id, name, username, email, role FROM wsk_users WHERE user_id = ?';
+  const [rows] = await promisePool.execute(sql, [id]);
+  return rows[0];
 };
 
-const addUser = (user) => {
-  const { name, username, email, role, password } = user;
-  const newId = userItems[0].user_id + 1;
-
-  const newUser = { user_id: newId, name, username, email, role, password };
-  userItems.unshift(newUser);
-
-  return { user_id: newId };
-};
-
+// Hae käyttäjä käyttäjätunnuksella (sisältää salasanan - kirjautumista varten)
 const findUserByUsername = async (username) => {
-   const sql = `SELECT * FROM wsk_users WHERE username = ?`;
-   const [rows] = await db.execute(sql, [username]);
-   return rows[0];
-}
+  const sql = 'SELECT * FROM wsk_users WHERE username = ?';
+  const [rows] = await promisePool.execute(sql, [username]);
+  return rows[0];
+};
 
-export { listAllUsers, findUserById, addUser, findUserByUsername };
+// Lisää uusi käyttäjä
+const addUser = async (user) => {
+  const { name, username, email, role, password } = user;
+  const sql = 'INSERT INTO wsk_users (name, username, email, role, password) VALUES (?, ?, ?, ?, ?)';
+  const [result] = await promisePool.execute(sql, [name, username, email, role, password]);
+  return { user_id: result.insertId };
+};
+
+// Päivitä käyttäjä
+const updateUser = async (id, user) => {
+  const { name, username, email, role } = user;
+  const sql = 'UPDATE wsk_users SET name = ?, username = ?, email = ?, role = ? WHERE user_id = ?';
+  const [result] = await promisePool.execute(sql, [name, username, email, role, id]);
+  return result.affectedRows > 0;
+};
+
+// Poista käyttäjä
+const deleteUser = async (id) => {
+  const sql = 'DELETE FROM wsk_users WHERE user_id = ?';
+  const [result] = await promisePool.execute(sql, [id]);
+  return result.affectedRows > 0;
+};
+
+export { listAllUsers, findUserById, findUserByUsername, addUser, updateUser, deleteUser };
