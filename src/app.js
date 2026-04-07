@@ -1,5 +1,6 @@
 import express from 'express';
 import api from './api/index.js';
+import catRouter from './api/routers/cat-router.js';
 
 const app = express();
 
@@ -8,7 +9,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // test route
 app.get('/', (req, res) => {
-   res.send('Hello everyone!');
+   res.send('API running');
 });
 
 // static files
@@ -17,17 +18,6 @@ app.use('/public', express.static('public'));
 app.use('/api/v1', api);
 
 // API
-app.get('/api/v1/cat', (req, res) => {
-   const cat = {
-      cat_id: 1,
-      name: "Misu",
-      birthdate: "2020-01-01",
-      weight: 4.5,
-      owner: "Matti",
-      image: "https://loremflickr.com/320/240/cat"
-   };
-
-   res.json(cat);
-});
+app.use('/api/v1/cats', catRouter);
 
 export default app;

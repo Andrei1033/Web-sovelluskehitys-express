@@ -1,50 +1,69 @@
-import { listAllCats, findCatById, addCat} from "../models/cat-model.js";
+import { listAllCats, findCatById, addCat, getCatsByUserId, deleteCatById, updateCatById} from "../models/cat-model.js";
 
-const getCats = (req, res) => {
-  const cats = listAllCats();
+const catListGet = async (req, res) => {
+   try {
+      const cats = await getAllCats();
+      res.json(cats);
+   }
+   catch (error) {
+      console.error('Error fetching cats:', error);
+      res.status(500).json({ message: 'Internal server error' });
+   }
+}
+
+const getCats = async (req, res) => {
+  const cats = await listAllCats();
   res.json(cats);
 };
 
-const getCatById = (req, res) => {
-   const cat = findCatById(parseInt(req.params.id));
+const getCatById = async (req, res) => {
+  const cat = await findCatById(req.params.id);
 
-   if (cat) {
-      res.json(cat);
-   }
-   else {
-      res.status(404).json({ message: "Cat not found" });
-   }
+  if (!cat) {
+    return res.status(404).json({message: 'Cat not found'});
+  }
+
+  res.json(cat);
 };
 
-const postCat = (req, res) => {
+const postCat = async (req, res) => {
 
-   console.log(req.body);
-   console.log(req.file);
+  const catData = {
+    ...req.body,
+    filename:
+      req.file?.filename ||
+      req.body.filename ||
+      'default.jpg',
+  };
 
-   const catData = {
-      ...req.body,
-      filename: req.file ? req.file.filename : null,
-   };
+  const result = await addCat(catData);
 
-   const result = addCat(catData);
-
-   if (result.cat_id) {
-      res.status(201).json({
-         message: 'New cat added.',
-         result,
-      });
-   }
-   else {
-      res.sendStatus(400);
-   }
+  res.status(201).json({
+    message: 'New cat added',
+    result,
+  });
 };
 
-const putCat = (req, res) => {
-   res.json({ message: 'Cat item updated.' });
-}
+const updateCat = async (req, res) => {
+  const id = req.params.id;
+  const cat = req.body;
 
-const deleteCat = (req, res) => {
-   res.json({ message: 'Cat item deleted.' });
-}
+  const result = await updateCatById(cat, id);
 
-export { getCats, getCatById, postCat, putCat, deleteCat };
+  res.json(result);
+};
+
+const deleteCat = async (req, res) => {
+  const id = req.params.id;
+
+  const result = await deleteCatById(id);
+
+  res.json(result);
+};
+
+const getCatsByUser = async (req, res) => {
+   const cats = await getCatsByUserId(req.params.id);
+   res.json(cats);
+};
+
+export { getCats, getCatById, postCat, deleteCat, catListGet, getCatsByUser, updateCat};

@@ -2,31 +2,40 @@
 GET http://localhost:3000/api/v1/cats
 
 ### Get cat by id
-GET http://localhost:3000/api/v1/cats/1
+GET http://localhost:3000/api/v1/cats/41
 
 ### Add new cat
 POST http://localhost:3000/api/v1/cats
 Content-Type: application/json
 
 {
-  "cat_name": "Garfield",
-  "weight": 9,
-  "owner": 1234,
-  "filename": "garfield.jpg",
-  "birthdate": "2020-05-05"
+"cat_name": "Garfield",
+"weight": 7,
+"owner": 37,
+"filename": "garfield.jpg",
+"birthdate": "2020-05-05"
 }
 
 ### Get cats again
 GET http://localhost:3000/api/v1/cats
 
+### Get cats by user id
+GET http://localhost:3000/api/v1/cats/user/37
+
 ### Update cat
-PUT http://localhost:3000/api/v1/cats/1
+PUT http://localhost:3000/api/v1/cats/41
+Content-Type: application/json
+
+{
+  "cat_name": "Siiri Updated",
+  "weight": 5,
+  "owner": 37,
+  "filename": "siiri.jpg",
+  "birthdate": "2010-03-05"
+}
 
 ### Delete cat
-DELETE http://localhost:3000/api/v1/cats/1
-
-
-### asigment 3 tests
+DELETE http://localhost:3000/api/v1/cats/43
 
 ### Add new cat WITH IMAGE
 POST http://localhost:3000/api/v1/cats
@@ -35,15 +44,15 @@ Content-Type: multipart/form-data; boundary=MyBoundary
 --MyBoundary
 Content-Disposition: form-data; name="cat_name"
 
-Misu
+ImageCat
 --MyBoundary
 Content-Disposition: form-data; name="weight"
 
-6
+5
 --MyBoundary
 Content-Disposition: form-data; name="owner"
 
-3602
+37
 --MyBoundary
 Content-Disposition: form-data; name="birthdate"
 
