@@ -45,20 +45,75 @@ const postCat = async (req, res) => {
 };
 
 const updateCat = async (req, res) => {
-  const id = req.params.id;
-  const cat = req.body;
+   const id = req.params.id;
+   const catData = req.body;
 
-  const result = await updateCatById(cat, id);
+   try {
+      // Hae kissa tietokannasta
+      const existingCat = await findCatById(id);
 
-  res.json(result);
+      if (!existingCat) {
+         return res.status(404).json({ message: 'Cat not found' });
+      }
+
+      // Tarkista omistajuus
+      const loggedInUserId = res.locals.user.user_id;
+      const isAdmin = res.locals.user.role === 'admin';
+      const isOwner = existingCat.owner === loggedInUserId;
+
+      if (!isOwner && !isAdmin) {
+         return res.status(403).json({
+         message: 'Forbidden: You can only update your own cats'
+         });
+      }
+
+      // Jos ei admin, estä owner kentän muuttaminen toisen omistajaksi
+      if (!isAdmin && catData.owner && catData.owner !== loggedInUserId) {
+         return res.status(403).json({
+         message: 'Forbidden: You cannot transfer ownership'
+         });
+      }
+
+      const result = await updateCatById(catData, id);
+      res.json({ message: 'Cat updated successfully', result });
+
+   }
+   catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Internal server error' });
+   }
 };
 
 const deleteCat = async (req, res) => {
-  const id = req.params.id;
+   const id = req.params.id;
 
-  const result = await deleteCatById(id);
+   try {
+      // Hae kissa tietokannasta
+      const existingCat = await findCatById(id);
 
-  res.json(result);
+      if (!existingCat) {
+         return res.status(404).json({ message: 'Cat not found' });
+      }
+
+      // Tarkista omistajuus
+      const loggedInUserId = res.locals.user.user_id;
+      const isAdmin = res.locals.user.role === 'admin';
+      const isOwner = existingCat.owner === loggedInUserId;
+
+      if (!isOwner && !isAdmin) {
+         return res.status(403).json({
+         message: 'Forbidden: You can only delete your own cats'
+         });
+      }
+
+      const result = await deleteCatById(id);
+      res.json({ message: 'Cat deleted successfully', result });
+
+   }
+   catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Internal server error' });
+   }
 };
 
 const getCatsByUser = async (req, res) => {

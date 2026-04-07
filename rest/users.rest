@@ -10,6 +10,18 @@ Content-Type: application/json
   "password": "1234"
 }
 
+###
+POST http://localhost:3000/api/v1/users
+Content-Type: application/json
+
+{
+  "name": "kakka User",
+  "username": "smallkakka",
+  "email": "smallkakka@example.com",
+  "role": "user",
+  "password": "4321"
+}
+
 ### POST login - onnistunut kirjautuminen
 POST http://localhost:3000/api/v1/auth/login
 Content-Type: application/json
@@ -36,3 +48,19 @@ Content-Type: application/json
   "username": "olematon",
   "password": "test"
 }
+
+### Kirjaudu ensin ja tallenna token
+POST http://localhost:3000/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "username": "kakka",
+  "password": "1234"
+}
+
+### Tallenna token vastauksesta ja käytä sitä:
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjo0MSwibmFtZSI6Imtha2thIFVzZXIiLCJ1c2VybmFtZSI6Imtha2thIiwiZW1haWwiOiJrYWtrYUBleGFtcGxlLmNvbSIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc3NTU4NDgyMCwiZXhwIjoxNzc1NjcxMjIwfQ.9THb3YVWD17yKdpSz4RS5A5MBJzDJ50TZrpuWMhTWhc
+
+### Hae oma tieto (protected route)
+GET http://localhost:3000/api/v1/auth/me
+Authorization: Bearer {{token}}

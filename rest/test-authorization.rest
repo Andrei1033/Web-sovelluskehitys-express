@@ -1,0 +1,34 @@
+### 1. Kirjaudu sisään normaalina käyttäjänä
+# @name loginUser
+POST http://localhost:3000/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "username": "smallkakka",
+  "password": "4321"
+}
+
+### Tallennetaan token muuttujaan
+@user_token = {{loginUser.response.body.token}}
+
+### 2. Yritä poistaa adminin kissa (pitäisi epäonnistua 403)
+DELETE http://localhost:3000/api/v1/cats/41
+Authorization: Bearer {{user_token}}
+
+
+### 3. Kirjaudu sisään adminina
+# @name loginAdmin
+POST http://localhost:3000/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "username": "kakka",
+  "password": "1234"
+}
+
+### Tallennetaan admin-token muuttujaan
+@admin_token = {{loginAdmin.response.body.token}}
+
+### 4. Admin voi poistaa minkä tahansa kissan (pitäisi onnistua 200)
+DELETE http://localhost:3000/api/v1/cats/41
+Authorization: Bearer {{admin_token}}

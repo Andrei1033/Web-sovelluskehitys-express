@@ -2,8 +2,10 @@ import express from 'express';
 import api from '../src/api/index.js';
 import catRouter from '../src/api/routers/cat-router.js';
 import authRouter from '../src/api/routers/auth-router.js';
+import cors from 'cors';
 
 const app = express();
+app.use(cors());
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

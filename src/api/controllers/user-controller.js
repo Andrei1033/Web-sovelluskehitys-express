@@ -42,25 +42,66 @@ const postUser = async (req, res) => {
   }
 };
 
-// PUT (hard coded)
+// PUT
 const putUser = async (req, res) => {
+   try {
+      const userId = parseInt(req.params.id);
+      const loggedInUserId = res.locals.user.user_id;
+      const isAdmin = res.locals.user.role === 'admin';
+
+      // Tarkista oikeudet
+      if (userId !== loggedInUserId && !isAdmin) {
+         return res.status(403).json({ message: 'Forbidden: You can only update your own user info' });
+      }
+
+      // Jos ei admin, estä roolin muuttaminen
+      if (!isAdmin && req.body.role) {
+         delete req.body.role;
+      }
+
+      // Jos salasana annetaan, hashataan se
+      if (req.body.password) {
+         req.body.password = await bcrypt.hash(req.body.password, 10);
+      }
+
+      const result = await updateUser(userId, req.body);
+
+      if (result) {
+         res.json({ message: 'User updated successfully' });
+      } else {
+         res.status(404).json({ message: 'User not found' });
+      }
+
+   } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Internal server error' });
+   }
+};
+
+// DELETE
+const deleteUser = async (req, res) => {
   try {
-    // Tämä on esimerkki - toteuta updateUser modeliin
-    res.json({ message: 'User item updated.' });
+    const userId = parseInt(req.params.id);
+    const loggedInUserId = res.locals.user.user_id;
+    const isAdmin = res.locals.user.role === 'admin';
+
+    // Tarkista oikeudet
+    if (userId !== loggedInUserId && !isAdmin) {
+      return res.status(403).json({ message: 'Forbidden: You can only delete your own user' });
+    }
+
+    const result = await deleteUserFromDb(userId);
+
+    if (result) {
+      res.json({ message: 'User deleted successfully' });
+    } else {
+      res.status(404).json({ message: 'User not found' });
+    }
+
   } catch (error) {
     console.error(error);
-    res.sendStatus(500);
+    res.status(500).json({ message: 'Internal server error' });
   }
 };
 
-// DELETE (hard coded)
-const deleteUser = async (req, res) => {
-  try {
-    // Tämä on esimerkki - toteuta deleteUser modeliin
-    res.json({ message: 'User item deleted.' });
-  } catch (error) {
-    console.error(error);
-    res.sendStatus(500);
-  }
-};
 export { getUser, getUserById, postUser, putUser, deleteUser };
