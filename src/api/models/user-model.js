@@ -36,4 +36,10 @@ const addUser = (user) => {
   return { user_id: newId };
 };
 
-export { listAllUsers, findUserById, addUser };
+const findUserByUsername = async (username) => {
+   const sql = `SELECT * FROM wsk_users WHERE username = ?`;
+   const [rows] = await db.execute(sql, [username]);
+   return rows[0];
+}
+
+export { listAllUsers, findUserById, addUser, findUserByUsername };

@@ -1,3 +1,4 @@
+import bcrypt from 'bcrypt';
 import { listAllUsers, findUserById, addUser } from '../models/user-model.js';
 
 // GET kaikki käyttäjät
@@ -16,13 +17,18 @@ const getUserById = (req, res) => {
 };
 
 // POST uusi käyttäjä
-const postUser = (req, res) => {
-  const result = addUser(req.body);
-  if (result.user_id) {
-    res.status(201).json({ message: 'New user added.', result });
-  } else {
-    res.sendStatus(400);
-  }
+const postUser = async (req, res) => {
+   try{
+      // Hashataan salasana
+      req.body.password = bcrypt.hash(req.body.password, 10);
+
+      const newuser = await addUser(req.body);
+      res.status(201).json(newuser);
+   }
+   catch (error) {
+      console.error(error);
+      res.sendStatus(500);
+   }
 };
 
 // PUT (hard coded)
