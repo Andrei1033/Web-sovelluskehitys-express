@@ -2,24 +2,24 @@ import jwt from 'jsonwebtoken';
 import 'dotenv/config';
 
 const authenticateToken = (req, res, next) => {
-  console.log('authenticateToken headers:', req.headers);
-
-  const authHeader = req.headers['authorization'];
+  const authHeader = req.headers.authorization;
   const token = authHeader && authHeader.split(' ')[1];
 
-  console.log('token:', token);
-
-  if (token == null) {
-    return res.sendStatus(401);
+  if (!token) {
+    const error = new Error('Access token required');
+    error.status = 401;
+    return next(error);
   }
 
-  try {
-    const user = jwt.verify(token, process.env.JWT_SECRET);
-    res.locals.user = user;
+  jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
+    if (err) {
+      const error = new Error('Invalid or expired token');
+      error.status = 403;
+      return next(error);
+    }
+    req.user = user;
     next();
-  } catch (err) {
-    res.status(403).json({ message: 'invalid token' });
-  }
+  });
 };
 
 export { authenticateToken };

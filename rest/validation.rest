@@ -1,0 +1,24 @@
+### Testaa 400 - Invalid username (liian lyhyt)
+POST http://localhost:3000/api/v1/users
+Content-Type: application/json
+
+{
+  "username": "ab",
+  "email": "testi@example.com",
+  "password": "salasana123"
+}
+
+### Testaa 400 - Invalid cat name (liian lyhyt)
+POST http://localhost:3000/api/v1/cats
+Authorization: Bearer {TOKEN}
+Content-Type: application/json
+
+{
+  "cat_name": "Mi",
+  "weight": 5,
+  "owner": 1,
+  "birthdate": "2020-01-01"
+}
+
+### Testaa että vanhat toiminnot toimii edelleen
+GET http://localhost:3000/api/v1/cats

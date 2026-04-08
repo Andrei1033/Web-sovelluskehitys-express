@@ -1,0 +1,82 @@
+http://localhost:3000/api/v1/testaa123
+
+###
+GET http://localhost:3000/api/v1/cats/999999
+
+###
+POST http://localhost:3000/api/v1/cats
+
+
+
+### Luo käyttäjä 1 (oma käyttäjä)
+POST http://localhost:3000/api/v1/users
+Content-Type: application/json
+
+{
+  "name": "user a",
+  "username": "user a",
+  "email": "usera@example.com",
+  "role": "user",
+  "password": "a"
+}
+
+### Luo käyttäjä 2 (toinen käyttäjä)
+POST http://localhost:3000/api/v1/users
+Content-Type: application/json
+
+{
+  "name": "user b",
+  "username": "user b",
+  "email": "userb@example.com",
+  "role": "user",
+  "password": "b"
+}
+
+### Hae token (kirjaudu sisään)
+POST http://localhost:3000/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "username": "user a",
+  "password": "a"
+}
+
+### 1. Testaa 404 - DELETE olemattomalla id:llä
+DELETE http://localhost:3000/api/v1/cats/999999
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjo0NywibmFtZSI6InVzZXIgYSIsInVzZXJuYW1lIjoidXNlciBhIiwiZW1haWwiOiJ1c2VyYUBleGFtcGxlLmNvbSIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzc1NjUwNTk1LCJleHAiOjE3NzU3MzY5OTV9.G5EUfQyTIXYWqRQOqt-c2_CInsvNGKMNzePW46FWJGk
+
+### 2. Testaa 404 - GET olemattomalla id:llä
+GET http://localhost:3000/api/v1/cats/999999
+
+### 3. Testaa 400 - POST ilman tiedostoa
+POST http://localhost:3000/api/v1/cats
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjo0NywibmFtZSI6InVzZXIgYSIsInVzZXJuYW1lIjoidXNlciBhIiwiZW1haWwiOiJ1c2VyYUBleGFtcGxlLmNvbSIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzc1NjUwNTk1LCJleHAiOjE3NzU3MzY5OTV9.G5EUfQyTIXYWqRQOqt-c2_CInsvNGKMNzePW46FWJGk
+Content-Type: application/json
+
+{
+  "cat_name": "TestiKissa",
+  "weight": 5,
+  "owner": 1,
+  "birthdate": "2020-01-01"
+}
+
+### 4. Testaa 403 - PUT toisen käyttäjän kissa (tarvitset toisen käyttäjän id:n)
+# Oletetaan että sinulla on kissa jonka owner=2 (eri käyttäjä)
+PUT http://localhost:3000/api/v1/cats/45
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjo0NywibmFtZSI6InVzZXIgYSIsInVzZXJuYW1lIjoidXNlciBhIiwiZW1haWwiOiJ1c2VyYUBleGFtcGxlLmNvbSIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzc1NjUwNTk1LCJleHAiOjE3NzU3MzY5OTV9.G5EUfQyTIXYWqRQOqt-c2_CInsvNGKMNzePW46FWJGk
+Content-Type: application/json
+
+{
+  "cat_name": "Yritän muokata toisen kissaa"
+}
+
+### Testaa 401 - PUT ilman tokenia
+PUT http://localhost:3000/api/v1/cats/45
+Content-Type: application/json
+
+{
+  "cat_name": "Testi"
+}
+
+### 6. Testaa 404 - Olematon reitti
+GET http://localhost:3000/api/v1/olemattomareitti
